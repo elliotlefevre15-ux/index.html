@@ -44,6 +44,7 @@ class Game {
     this.glow = new ParticlePool(scene, 500, true);
     this.input = new Input(canvas, screen);
     this.cam = new CameraRig(camera, this.world);
+    this.cam.camp = this.camp;
     this.player = new Player(ctx);
     this.animals = new Animals(ctx);
     this.builder = new Builder(ctx);
@@ -181,6 +182,7 @@ class Game {
     this.objectives.update(dt);
     this.mapview.update(dt, this.player);
     this.daynight.update(dt, { x: Math.round(this.player.pos.x / 2) * 2, y: Math.round(this.player.pos.y), z: Math.round(this.player.pos.z / 2) * 2 }, this.camera);
+    this._dayToasts();
     this._ambientFx(dt);
     this.fx.update(dt, this.time); this.glow.update(dt, this.time);
     this.audio.update(dt, this);
@@ -190,6 +192,16 @@ class Game {
     this._saveT -= dt;
     if (this._saveSoon != null) { this._saveSoon -= dt; if (this._saveSoon <= 0) { this._saveSoon = null; this.save(); } }
     if (this._saveT <= 0) { this._saveT = 15; this.save(); }
+  }
+
+  _dayToasts() {
+    const h = this.daynight.hours, prev = this._prevH ?? h;
+    this._prevH = h;
+    if (Math.abs(h - prev) > 1) return;
+    const cross = (t) => (prev < t && h >= t);
+    if (cross(17)) this.ui.toast('Le soleil descend — les animaux sortent : le Cerf géant se déplace au crépuscule', 'info');
+    if (cross(19.5)) this.ui.toast('La nuit tombe — allume un feu ou rentre au camp', 'info');
+    if (cross(5)) this.ui.toast('L’aube se lève — le gibier est actif', 'info');
   }
 
   // particules d'ambiance : poussières/pollen le jour, lucioles la nuit, braises et fumée des feux

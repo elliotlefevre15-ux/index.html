@@ -1,6 +1,7 @@
 // Interface 9:16 : HUD minimaliste, menu de construction, sac, fabrication, carte, coffre. Tout en DOM (prêt pour le tactile).
 import * as THREE from 'three';
 import { icon } from './icons.js';
+import { Save } from '../systems/save.js';
 import { ITEMS, RES_ORDER, RECIPES } from '../inventory/items.js';
 import { PIECES, CATEGORIES } from '../building/pieces.js';
 import { DEFS } from '../animals/animal.js';
@@ -47,18 +48,18 @@ export class UI {
       <div id="obj"><div class="ot"></div><div class="ox"></div><div class="od"></div></div>
       <div id="topright">
         <button id="btn-map" class="mapbtn"><canvas id="mini" width="240" height="240"></canvas><span>${icon('map')} MAP</span></button>
-        <div id="clock"></div>
+        <div class="row"><button data-act="mute" id="mutebtn" title="Son (N)">${icon('sound')}</button><div id="clock"></div></div>
       </div>
       <div id="camp"></div>
       <div id="toasts"></div>
       <div id="cross"></div>
       <div id="prompt"><kbd>E</kbd><span></span></div>
       <div id="quick">
-        <button data-act="eat" title="Manger (F)">${icon('eat')}</button>
-        <button data-act="crouch" title="Accroupi (C)">${icon('crouch')}</button>
-        <button data-act="observe" title="Observer (Q, maintenu)">${icon('eye')}</button>
-        <button data-act="inventory" class="big" title="Sac (I)">${icon('bag')}<small>SAC</small></button>
-        <button data-act="build" class="big accent" title="Construire (B)">${icon('build')}<small>BÂTIR</small></button>
+        <button data-act="eat" title="Manger (F)" data-k="KeyF">${icon('eat')}<i class="key"></i></button>
+        <button data-act="crouch" title="Accroupi (C)" data-k="KeyC">${icon('crouch')}<i class="key"></i></button>
+        <button data-act="observe" title="Observer (Q, maintenu)" data-k="KeyQ">${icon('eye')}<i class="key"></i></button>
+        <button data-act="inventory" class="big" title="Sac (I)" data-k="KeyI">${icon('bag')}<small>SAC</small><i class="key"></i></button>
+        <button data-act="build" class="big accent" title="Construire (B)" data-k="KeyB">${icon('build')}<small>BÂTIR</small><i class="key"></i></button>
       </div>
       <div id="labels"></div>
     </div>
@@ -121,6 +122,7 @@ export class UI {
       case 'grab': g.builder.grab(); break;
       case 'delete': g.builder.deleteHover(); break;
       case 'help': this.toggleHints(); break;
+      case 'mute': { const m = g.audio.toggleMute(); $('#mutebtn').innerHTML = icon(m ? 'mute' : 'sound'); break; }
     }
   }
 
@@ -159,7 +161,7 @@ export class UI {
       h += '</div>';
       const w = inv.weaponDef;
       h += `<div class="weapon">${icon('spear')}<div><div class="wn">${w.name}</div><div class="ws">Mêlée ${w.melee} · Lancer ${w.throw} · <b>${inv.spears}</b> lance${inv.spears > 1 ? 's' : ''} en réserve</div></div></div>`;
-      h += `<div class="tip">Clic droit maintenu : viser · clic gauche : lancer. Une lance lancée se ramasse en marchant dessus.</div>`;
+      h += `<div class="tip">Clic droit maintenu : viser · clic gauche : lancer. Une lance lancée se ramasse en marchant dessus.</div><button class="mini danger" data-reset>Nouvelle partie…</button>`;
     } else if (tab === 'craft') {
       const bench = g.camp.nearest('workbench', g.player.pos.x, g.player.pos.z, 7);
       h += `<div class="sub">${bench ? 'Établi à proximité ✓' : 'Certaines recettes demandent un établi (Mobilier) à moins de 7 m'}</div><div class="recipes">`;
@@ -179,6 +181,8 @@ export class UI {
       h += `</div><div class="tip">Place-les dans ta cabane : Construire → Décoration. Un trophée se pose sur un mur ou sur un pied.</div>`;
     }
     this.el.invBody.innerHTML = h;
+    const rs = this.el.invBody.querySelector('[data-reset]');
+    if (rs) rs.onclick = () => { if (confirm('Effacer la sauvegarde et recommencer ?')) { Save.clear(); this.ctx.started = false; location.reload(); } };
     this.el.invBody.querySelectorAll('[data-eat]').forEach((b) => b.onclick = () => { const id = b.dataset.eat; g.inventory.best('food'); this._eatSpecific(id); });
     this.el.invBody.querySelectorAll('[data-craft]').forEach((b) => b.onclick = () => {
       const r = RECIPES.find((x) => x.id === b.dataset.craft);
@@ -296,6 +300,8 @@ export class UI {
   // ---------- boucle ----------
   update(dt, cam) {
     const g = this.ctx, p = g.player;
+    this._keyT = (this._keyT || 0) - dt;
+    if (this._keyT <= 0) { this._keyT = 1.5; this.root.querySelectorAll('[data-k]').forEach((b) => { b.querySelector('.key').textContent = g.input.keyLabel(b.dataset.k); }); }
     // barres
     this.el.hp.style.width = p.health + '%'; this.el.hpN.textContent = Math.ceil(p.health);
     this.el.food.style.width = p.food + '%'; this.el.water.style.width = p.water + '%';

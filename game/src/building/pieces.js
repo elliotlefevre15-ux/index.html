@@ -303,7 +303,7 @@ export const PIECES = {
   halfwall:   { cat: 'struct', name: 'Demi-mur', kind: 'wall', cost: { wood: 2 }, boxes: [{ cx: 0, cz: 0, hx: 1, hz: 0.14, y0: 0, y1: 1.1 }], tag: 'wall' },
   beam:       { cat: 'struct', name: 'Poutre', kind: 'beam', cost: { wood: 2 }, boxes: [{ cx: 0, cz: 0, hx: 0.15, hz: 0.15, y0: 0, y1: 2.4 }], tag: 'beam' },
   roof:       { cat: 'struct', name: 'Toit', kind: 'tile', cost: { wood: 2, fiber: 3 }, tag: 'roof' },
-  door:       { cat: 'struct', name: 'Porte', kind: 'wall', cost: { wood: 3, hide: 1 }, boxes: [{ cx: -0.78, cz: 0, hx: 0.24, hz: 0.14, y0: 0, y1: WALL_H }, { cx: 0.78, cz: 0, hx: 0.24, hz: 0.14, y0: 0, y1: WALL_H }], tag: 'door' },
+  door:       { cat: 'struct', name: 'Porte', kind: 'wall', cost: { wood: 3, fiber: 2 }, boxes: [{ cx: -0.78, cz: 0, hx: 0.24, hz: 0.14, y0: 0, y1: WALL_H }, { cx: 0.78, cz: 0, hx: 0.24, hz: 0.14, y0: 0, y1: WALL_H }], tag: 'door' },
   window:     { cat: 'struct', name: 'Fenêtre', kind: 'wall', cost: { wood: 3, fiber: 1 }, boxes: [{ cx: 0, cz: 0, hx: 1, hz: 0.14, y0: 0, y1: WALL_H }], tag: 'window' },
   stairs:     { cat: 'struct', name: 'Escalier', kind: 'tile', cost: { wood: 5 }, surface: 'ramp', tag: 'stairs' },
 

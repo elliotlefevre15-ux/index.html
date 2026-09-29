@@ -10,6 +10,16 @@ export class CircleGrid {
     a.push(c);
     return c;
   }
+  /** vrai si un cercle recouvre le point (x,z) élargi de r */
+  hits(x, z, r) {
+    const ci = Math.floor(x / this.cell), cj = Math.floor(z / this.cell);
+    for (let i = ci - 1; i <= ci + 1; i++) for (let j = cj - 1; j <= cj + 1; j++) {
+      const a = this.map.get(this._key(i, j));
+      if (!a) continue;
+      for (const c of a) if (c.active) { const dx = x - c.x, dz = z - c.z, rr = c.r + r; if (dx * dx + dz * dz < rr * rr) return true; }
+    }
+    return false;
+  }
   /** Repousse pos (objet {x,z}) hors des cercles. Retourne true si contact. */
   resolve(pos, radius) {
     let hit = false;

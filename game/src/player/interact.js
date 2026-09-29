@@ -1,18 +1,29 @@
 // Interactions contextuelles (touche E) : récolte, dépeçage, coffre, feu, lit, établi, eau.
+import * as THREE from 'three';
 import { ITEMS } from '../inventory/items.js';
 
 const NAMES = { tree: 'l’arbre', rock: 'la pierre', plant: 'des fibres', bush: 'les baies', branch: 'une branche' };
 const VERB = { tree: 'Couper', rock: 'Casser', plant: 'Cueillir', bush: 'Cueillir', branch: 'Ramasser' };
 
 export class Interact {
-  constructor(ctx) { this.ctx = ctx; this.target = null; this.cd = 0; this._t = 0; }
+  constructor(ctx) {
+    this.ctx = ctx; this.target = null; this.cd = 0; this._t = 0;
+    // petit halo pulsant au-dessus de la cible
+    const cv = document.createElement('canvas'); cv.width = cv.height = 64;
+    const g = cv.getContext('2d'), gr = g.createRadialGradient(32, 32, 2, 32, 32, 30);
+    gr.addColorStop(0, 'rgba(255,240,190,1)'); gr.addColorStop(0.35, 'rgba(255,214,120,.55)'); gr.addColorStop(1, 'rgba(255,200,90,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+    this.marker = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), transparent: true, depthTest: false, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }));
+    this.marker.renderOrder = 40; this.marker.visible = false; this.marker.scale.setScalar(0.7);
+    ctx.scene.add(this.marker);
+  }
 
   scan() {
     const { player, world, camp, animals, inventory: inv } = this.ctx;
     const p = player.pos, f = player.forward;
     const cands = [];
     const c = animals.nearestCarcass(p.x, p.z, 3.4);
-    if (c) cands.push({ score: 0.2 + Math.hypot(c.x - p.x, c.z - p.z) * 0.1, label: `Dépecer : ${c.animal.def.name}`, run: () => this.skin(c) });
+    if (c) cands.push({ score: 0.2 + Math.hypot(c.x - p.x, c.z - p.z) * 0.1, label: `Dépecer : ${c.animal.def.name}`, run: () => this.skin(c), pos: [c.x, world.heightAt(c.x, c.z) + 1.3, c.z] });
     // pièces du camp
     for (const tag of ['chest', 'fire', 'bed', 'workbench']) {
       const q = camp.nearest(tag, p.x, p.z, 3.0);
@@ -25,12 +36,12 @@ export class Interact {
         if (inv.count('meat') > 0) { label = `Cuire la viande (${inv.count('meat')})`; run = () => this.cook(); }
         else { label = 'Se réchauffer près du feu'; run = () => this.ctx.ui.toast('Le feu crépite. Rapporte de la viande crue pour la cuire.', 'info'); }
       } else { label = this.ctx.daynight.isNight ? 'Dormir jusqu’au matin' : 'Se reposer'; run = () => this.sleep(q); }
-      cands.push({ score: d * 0.12, label, run });
+      cands.push({ score: d * 0.12, label, run, pos: [q.x, q.y + (tag === 'chest' ? 0.9 : tag === 'fire' ? 1.5 : 1.2), q.z] });
     }
     // eau
     const ax = p.x + f.x * 1.3, az = p.z + f.z * 1.3;
     if (world.terrain.waterDepth(ax, az) > 0.08 || world.terrain.waterDepth(p.x, p.z) > 0.08) {
-      cands.push({ score: 0.35, label: 'Boire', run: () => this.drink() });
+      cands.push({ score: 0.35, label: 'Boire', run: () => this.drink(), pos: null });
     }
     // ressources
     const n = world.veg.nearest(p.x, p.z, 2.9, (nd) => {
@@ -39,7 +50,8 @@ export class Interact {
     });
     if (n) {
       const label = `${VERB[n.kind]} ${NAMES[n.kind]}${n.maxHits > 1 ? ` (${n.hits})` : ''}`;
-      cands.push({ score: Math.hypot(n.x - p.x, n.z - p.z) * 0.15, label, run: () => this.gather(n) });
+      const hh = { tree: 1.7, rock: 0.5 + n.baseScale * 0.7, plant: 1.2, bush: 1.3, branch: 0.5 }[n.kind];
+      cands.push({ score: Math.hypot(n.x - p.x, n.z - p.z) * 0.15, label, run: () => this.gather(n), pos: [n.x, n.y + hh, n.z] });
     }
     cands.sort((a, b) => a.score - b.score);
     this.target = cands[0] || null;
@@ -50,6 +62,11 @@ export class Interact {
     this.cd = Math.max(0, this.cd - dt);
     this._t -= dt;
     if (this._t <= 0) { this._t = 0.08; this.scan(); }
+    const tg = this.target;
+    if (tg && tg.pos && !this.ctx.builder.active && input.enabled) {
+      this.marker.visible = true; this.marker.position.set(tg.pos[0], tg.pos[1], tg.pos[2]);
+      this.marker.scale.setScalar(0.55 + 0.12 * Math.sin(this.ctx.time * 5)); this.marker.material.opacity = 0.75 + 0.25 * Math.sin(this.ctx.time * 5);
+    } else this.marker.visible = false;
     if (input.enabled && input.pressed('interact')) this.use();
     if (input.enabled && input.pressed('eat')) this.ctx.player.eat();
   }

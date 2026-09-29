@@ -124,6 +124,20 @@ export class Camp {
     return hit;
   }
 
+  /** un point (caméra) est-il dans un mur/meuble ? */
+  hitsPoint(x, y, z, m = 0.25) {
+    for (const p of this.solids || []) {
+      if ((p.x - x) ** 2 + (p.z - z) ** 2 > 9) continue;
+      for (const b of p.obbs) {
+        if (y < b.y0 - m || y > b.y1 + m) continue;
+        const c = Math.cos(b.rot), s = Math.sin(b.rot), dx = x - b.x, dz = z - b.z;
+        const lx = dx * c - dz * s, lz = dx * s + dz * c;
+        if (Math.abs(lx) < b.hx + m && Math.abs(lz) < b.hz + m) return true;
+      }
+    }
+    return false;
+  }
+
   nearest(tag, x, z, maxD, y) {
     let best = null, bd = maxD * maxD;
     for (const p of this.pieces.values()) {

@@ -320,6 +320,11 @@ export class Player {
       if (this.regenBlock <= 0 && this.food > 25 && this.water > 25 && this.health < 100) this.health = clamp(this.health + dt * (nearHome ? 2.4 : 0.9), 0, 100);
     }
     if (this.invuln > 0.9) this.regenBlock = 6;
+    this._warnT = (this._warnT || 0) - dt;
+    if (this._warnT <= 0) {
+      if (this.food < 22) { this._warnT = 50; this.ctx.ui.toast('Tu as faim — mange (F). La viande se cuit au feu.', 'warn'); }
+      else if (this.water < 22) { this._warnT = 50; this.ctx.ui.toast('Tu as soif — bois à la rivière (E).', 'warn'); }
+    }
     this.health = clamp(this.health, 0, 100);
   }
 

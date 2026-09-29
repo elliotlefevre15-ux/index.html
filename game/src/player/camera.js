@@ -46,7 +46,7 @@ export class CameraRig {
     for (let i = 0; i < 12; i++) {
       const x = tx + dx * d, z = tz + dz * d, y = ty + dy * d;
       const gh = this.world.heightAt(x, z);
-      if (y > gh + 0.35) break;
+      if (y > gh + 0.35 && !(this.world.colliders.hits(x, z, 0.4) && y < gh + 3.2) && !(this.camp && this.camp.hitsPoint(x, y, z))) break;
       d *= 0.88;
     }
     const wx = tx + dx * d, wy = Math.max(ty + dy * d, this.world.heightAt(tx + dx * d, tz + dz * d) + 0.35), wz = tz + dz * d;
