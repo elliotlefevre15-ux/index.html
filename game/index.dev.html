@@ -7,10 +7,17 @@
 <meta name="theme-color" content="#0b0d0c">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Ctext y=%2725%27 font-size=%2726%27%3E%F0%9F%A6%8C%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="css/style.css">
-
+<script type="importmap">
+{ "imports": { "three": "./lib/three.module.js", "BufferGeometryUtils": "./lib/BufferGeometryUtils.js" } }
+</script>
 </head>
 <body>
 <div id="stage"><div id="phone"><div id="screen"><canvas id="gl"></canvas><div id="ui"></div><div id="loading"><div>WILDHEARTH<small>Chargement du monde…</small></div></div></div></div></div>
-<script src="dist/wildhearth.js"></script>
+<script>
+if (location.protocol === 'file:') addEventListener('DOMContentLoaded', function () {
+  document.getElementById('loading').innerHTML = '<div>WILDHEARTH<small>Chrome bloque les modules en <b>file://</b>.<br>Lance un petit serveur local :<br><code>cd game &amp;&amp; python3 -m http.server 8000</code><br>puis ouvre <b>http://localhost:8000</b><br>(ou double-clique <b>lancer.bat</b> / <b>lancer.sh</b>)</small></div>';
+});
+</script>
+<script type="module" src="src/main.js"></script>
 </body>
 </html>

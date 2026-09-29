@@ -51,7 +51,7 @@ export class CameraRig {
     }
     const wx = tx + dx * d, wy = Math.max(ty + dy * d, this.world.heightAt(tx + dx * d, tz + dz * d) + 0.35), wz = tz + dz * d;
     if (!this._init) { this.pos.set(wx, wy, wz); this.target.set(tx, ty, tz); this._init = true; }
-    const k = 1 - Math.exp(-dt * 18);
+    const k = 1 - Math.exp(-dt * 26);
     this.pos.x = lerp(this.pos.x, wx, k); this.pos.y = lerp(this.pos.y, wy, k); this.pos.z = lerp(this.pos.z, wz, k);
     this.target.x = lerp(this.target.x, tx, k); this.target.y = lerp(this.target.y, ty, k); this.target.z = lerp(this.target.z, tz, k);
     this.camera.position.copy(this.pos);

@@ -5,16 +5,17 @@ Prototype web jouable (Three.js), format **9:16** dans un téléphone virtuel, p
 
 ## Lancer
 
-Les modules ES demandent un petit serveur local (Chrome refuse `file://`). Trois options :
+**Le plus simple : double-clic sur `index.html`** (à la racine du dépôt ou dans `game/`) → s'ouvre dans Chrome, aucun serveur, aucune installation, hors ligne.
+Le jeu est livré déjà empaqueté (`game/dist/wildhearth.js`, Three.js inclus).
+
+Pour **modifier le code** (les sources sont dans `game/src/`, modules ES) :
 
 ```bash
 cd game
-python3 -m http.server 8000      # puis ouvrir http://localhost:8000
-# ou :  npx serve .   /   npx http-server .
-# ou (Windows) : double-clic sur lancer.bat
+python3 -m http.server 8000      # puis ouvrir http://localhost:8000/index.dev.html  (charge src/ en direct)
+# ou :  npm run dev   /   lancer.sh   /   lancer.bat
+npm i && npm run build           # régénère dist/wildhearth.js après tes modifications
 ```
-
-Aucune dépendance à installer : Three.js est fourni dans `game/lib/`. Fonctionne hors ligne.
 
 ## Contrôles
 
@@ -50,7 +51,7 @@ Aucune dépendance à installer : Three.js est fourni dans `game/lib/`. Fonction
 
 ```
 game/
-  index.html · css/style.css · lib/ (three.js)
+  index.html (jeu empaqueté) · index.dev.html (modules, pour développer) · dist/ · css/style.css · lib/ (three.js) · build.mjs
   src/
     main.js               boucle de jeu, assemblage des systèmes
     systems/              input (actions abstraites), audio, jour/nuit, particules, sauvegarde, objectifs, bruit, géométrie
