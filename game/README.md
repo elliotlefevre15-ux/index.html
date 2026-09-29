@@ -3,6 +3,10 @@
 Petit open-world en 3ᵉ personne : **explorer → collecter → chasser → construire → améliorer → explorer plus loin.**
 Prototype web jouable (Three.js), format **9:16** dans un téléphone virtuel, pensé pour être porté au tactile.
 
+<p align="center">
+<img src="docs/exploration.png" width="24%"> <img src="docs/mode-construction.png" width="24%"> <img src="docs/cabane-crepuscule.png" width="24%"> <img src="docs/carte.png" width="24%">
+</p>
+
 ## Lancer
 
 **Le plus simple : double-clic sur `index.html`** (à la racine du dépôt ou dans `game/`) → s'ouvre dans Chrome, aucun serveur, aucune installation, hors ligne.
@@ -22,7 +26,7 @@ npm i && npm run build           # régénère dist/wildhearth.js après tes mod
 | Explorer | |
 |---|---|
 | **W A S D** (ZQSD en AZERTY : touches par position physique) | se déplacer |
-| Souris | caméra (clic sur le jeu pour capturer la souris, Échap pour la libérer) |
+| Souris | caméra (clic sur le jeu pour capturer la souris, Échap pour la libérer ; si le navigateur refuse la capture : clic droit glissé) |
 | Maj / C / Espace | courir / s'accroupir / sauter |
 | **E** | interagir : couper, casser, cueillir, dépecer, boire, cuire, dormir, coffre, établi |
 | Clic gauche | coup de lance |

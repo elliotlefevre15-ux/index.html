@@ -168,7 +168,7 @@ export class Player {
     const mv = en ? input.move : { x: 0, y: 0 };
     if (en && input.pressed('crouch')) this.crouching = !this.crouching;
     if (mode === 'build') { this.aiming = false; }
-    else this.aiming = en && input.mouse.right && input.locked;
+    else this.aiming = en && input.mouse.right && (input.locked || input.lockUnsupported);
     this.observing = en && (input.isDown('observe') || !!this.observeHold) && mode !== 'build';
     this.sprinting = en && input.isDown('sprint') && mv.y > 0 && !this.crouching && !this.aiming && !this.observing;
     if (this.sprinting) this.crouching = false;
@@ -285,8 +285,8 @@ export class Player {
     }
     if (en && mode !== 'build') {
       for (const c of input.takeClicks()) {
-        if (c.button === 0 && input.locked) { this.aiming ? this.throwSpear() : this.attack(); }
-        else if (!input.locked && !c.drag && c.button === 0) input.requestLock();
+        if (c.button === 0 && (input.locked || (input.lockUnsupported && !c.drag))) { this.aiming ? this.throwSpear() : this.attack(); }
+        else if (!input.locked && !input.lockUnsupported && !c.drag && c.button === 0) input.requestLock();
       }
     }
     this._updateSpears(dt);

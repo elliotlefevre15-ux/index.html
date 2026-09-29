@@ -27,7 +27,7 @@ export const Save = {
       if (d.map) {
         const s = atob(d.map);
         for (let i = 0; i < s.length && i < g.mapview.explored.length; i++) if (s.charCodeAt(i)) g.mapview.explored[i] = 255;
-        g.mapview.dirty = true;
+        g.mapview.dirty = true; g.mapview.syncPois(true);
       }
       return true;
     } catch (e) { return false; }

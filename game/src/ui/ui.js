@@ -322,9 +322,9 @@ export class UI {
     this.el.build.classList.toggle('hidden', !building);
     this.el.hud.classList.toggle('building', building);
     this.el.hud.classList.toggle('observing', p.observing);
-    this.el.cross.style.display = (!building && g.input.locked && !this.modal) ? 'block' : 'none';
+    this.el.cross.style.display = (!building && (g.input.locked || g.input.lockUnsupported) && !this.modal) ? 'block' : 'none';
     this.el.cross.classList.toggle('aim', p.aiming);
-    const needResume = g.started && this.el.start.classList.contains('hidden') && !building && !this.modal && !g.input.locked && !p.dead;
+    const needResume = g.started && this.el.start.classList.contains('hidden') && !building && !this.modal && !g.input.locked && !g.input.lockUnsupported && !p.dead;
     this.el.resume.classList.toggle('hidden', !needResume);
     // prompt
     const t = g.interact.target;

@@ -15,6 +15,7 @@ export class MapView {
     this.dirty = true;
     this._t = 0;
     this.deerHint = { x: 0, z: 0, ox: (Math.random() - 0.5) * 16, oz: (Math.random() - 0.5) * 16 };
+    this.known = new Set(POIS.filter((p) => p.always).map((p) => p.id));
     this.reveal(CAMP.x, CAMP.z, 34);
   }
 
@@ -54,6 +55,14 @@ export class MapView {
         if (d <= rr) { const v = d < rr * 0.7 ? 255 : Math.round(255 * (1 - (d - rr * 0.7) / (rr * 0.3))); if (v > this.explored[j * GRID + i]) { this.explored[j * GRID + i] = v; this.dirty = true; } }
       }
   }
+  /** annonce les lieux nouvellement découverts (silencieux au chargement d'une sauvegarde) */
+  syncPois(silent) {
+    for (const p of POIS) {
+      if (this.known.has(p.id) || !this.isExplored(p.x, p.z)) continue;
+      this.known.add(p.id);
+      if (!silent && this.ctx.ui) { this.ctx.ui.toast(`Lieu découvert : ${p.name}`, 'good'); this.ctx.audio.play('pickup'); }
+    }
+  }
   isExplored(x, z) {
     const i = Math.floor((x + WORLD.half) / 2), j = Math.floor((z + WORLD.half) / 2);
     if (i < 0 || j < 0 || i >= GRID || j >= GRID) return false;
@@ -62,7 +71,7 @@ export class MapView {
 
   update(dt, player) {
     this._t -= dt;
-    if (this._t <= 0) { this._t = 0.5; this.reveal(player.pos.x, player.pos.z, 30); }
+    if (this._t <= 0) { this._t = 0.5; this.reveal(player.pos.x, player.pos.z, 30); this.syncPois(false); }
     if (this.dirty) {
       const c = this.fog.getContext('2d'), img = c.createImageData(GRID, GRID);
       for (let i = 0; i < GRID * GRID; i++) {

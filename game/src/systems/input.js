@@ -90,8 +90,15 @@ export class Input {
     });
     c.addEventListener('mouseleave', () => { this.mouse.inside = false; });
     c.addEventListener('wheel', (e) => { e.preventDefault(); this.wheel += Math.sign(e.deltaY) * (e.shiftKey ? 0.001 : 1); this._shiftWheel = e.shiftKey; }, { passive: false });
+    // si le navigateur refuse toujours le verrouillage (iframe, etc.) : repli glisser-pour-tourner
+    this.lockErrors = 0; this.everLocked = false; this.lockUnsupported = false;
+    document.addEventListener('pointerlockerror', () => {
+      this.lockErrors++;
+      if (!this.everLocked && this.lockErrors >= 2) { this.lockUnsupported = true; this.wantLock = false; }
+    });
     document.addEventListener('pointerlockchange', () => {
       this.locked = document.pointerLockElement === this.canvas;
+      if (this.locked) this.everLocked = true;
       this.onLockChange(this.locked);
     });
   }

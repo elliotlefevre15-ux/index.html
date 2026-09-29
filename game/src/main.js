@@ -170,7 +170,7 @@ class Game {
 
     const building = this.builder.active;
     const look = input.takeLook(), wheel = input.takeWheel();
-    const canLook = !ui.modalOpen && (input.locked || building || input.mouse.right || this._dragging);
+    const canLook = !ui.modalOpen && (input.locked || building || input.mouse.right || input.lockUnsupported);
 
     this.player.update(dt, this.cam, input, building ? 'build' : 'explore');
     this.cam.update(dt, this.player, input, building ? 'build' : 'explore', canLook ? look : { x: 0, y: 0 }, ui.modalOpen ? 0 : wheel);

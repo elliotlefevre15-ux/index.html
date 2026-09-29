@@ -72,6 +72,24 @@ function plantMaterial(timeUniform) {
   return mat;
 }
 
+// Feuillage : léger balancement au vent, proportionnel à la hauteur (aucun coût CPU)
+function treeMaterial(timeUniform) {
+  const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.92, metalness: 0 });
+  mat.onBeforeCompile = (sh) => {
+    sh.uniforms.uTime = timeUniform;
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nuniform float uTime;')
+      .replace('#include <begin_vertex>', `#include <begin_vertex>
+      #ifdef USE_INSTANCING
+        vec3 ip = vec3(instanceMatrix[3]);
+        float ph = ip.x * 0.31 + ip.z * 0.23;
+        float h2 = position.y * position.y;
+        transformed.x += sin(uTime * 1.25 + ph) * 0.0022 * h2;
+        transformed.z += sin(uTime * 0.95 + ph * 1.7) * 0.0016 * h2;
+      #endif`);
+  };
+  return mat;
+}
+
 export class Vegetation {
   constructor(scene, terrain) {
     this.scene = scene; this.terrain = terrain;
@@ -84,6 +102,7 @@ export class Vegetation {
     this._dummy = new THREE.Object3D();
     this.trees = [];
     this.plantMat = plantMaterial(this.time);
+    this.treeMat = treeMaterial(this.time);
     this._buildTrees();
     this._buildRocks();
     this._buildPlants();
@@ -183,8 +202,8 @@ export class Vegetation {
     const oakGeo = merge(og);
     const stumpGeo = merge([part(new THREE.CylinderGeometry(0.2, 0.34, 0.5, 7), { pos: [0, 0.25, 0], color: 0x6b5238 })]);
 
-    const pines = this._inst(pineGeo, matVC, 1000, { range: 200 });
-    const oaks = this._inst(oakGeo, matVC, 1000, { range: 170 });
+    const pines = this._inst(pineGeo, this.treeMat, 1000, { range: 200 });
+    const oaks = this._inst(oakGeo, this.treeMat, 1000, { range: 170 });
     const stumps = this._inst(stumpGeo, matVC, 1000, { cast: false, range: 90 });
     const tint = new THREE.Color();
     let attempts = 0;
