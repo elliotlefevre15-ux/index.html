@@ -18,7 +18,6 @@ import { Animals } from './animals/animals.js';
 import { UI } from './ui/ui.js';
 import { MapView } from './ui/mapview.js';
 import { makeThumbnails } from './ui/thumbs.js';
-import { CAMP } from './world/config.js';
 
 class Game {
   constructor() {
@@ -75,13 +74,13 @@ class Game {
 
     document.getElementById('ui').classList.add('prestart');
     this.ui.showStart(Save.has(), (fresh) => this.start(fresh));
+    const ld = document.getElementById('loading'); if (ld) { ld.classList.add('gone'); setTimeout(() => ld.remove(), 600); }
     this.last = performance.now();
     this._saveT = 15;
     requestAnimationFrame((t) => this.loop(t));
   }
 
   _place() {
-    const p = this.player.pos;
     this.cam.yaw = this.player.yaw + Math.PI; this.cam.pitch = 0.28;
     this.cam.update(0.016, this.player, this.input, 'explore', { x: 0, y: 0 }, 0);
   }
@@ -104,13 +103,16 @@ class Game {
     if (this.builder.active) {
       this.ui._buildDirty = true;
       this.player.crouching = false;
+      this.cam.pitch = Math.max(this.cam.pitch, 0.6); this.cam.buildDist = Math.max(this.cam.buildDist, 9);
       this.ui.toast('Mode construction — clic gauche pour poser', 'info');
     } else { this.save(); this.input.requestLock(); }
   }
 
   _resize() {
     const r = this.screen.getBoundingClientRect();
-    const pr = Math.min(window.devicePixelRatio || 1, 1.6);
+    this.maxPr = Math.min(window.devicePixelRatio || 1, 1.75);
+    if (this.pr == null) this.pr = Math.min(this.maxPr, 1.4);
+    const pr = this.pr;
     this.renderer.setPixelRatio(pr);
     this.renderer.setSize(r.width, r.height, false);
     this.camera.aspect = r.width / r.height; this.camera.updateProjectionMatrix();
@@ -119,11 +121,25 @@ class Game {
 
   loop(now) {
     requestAnimationFrame((t) => this.loop(t));
-    const dt = Math.min(0.05, (now - this.last) / 1000); this.last = now;
+    const raw = (now - this.last) / 1000;
+    const dt = Math.min(0.05, raw); this.last = now;
+    this._perf(raw);
     if (window.__manual) return;   // pilotage pas à pas pour les tests automatisés
     try { this.update(dt); } catch (e) { if (!this._err) { this._err = true; console.error(e); } }
     this.renderer.render(this.scene, this.camera);
     this.input.endFrame();
+  }
+
+  // résolution dynamique : fluidité avant tout
+  _perf(raw) {
+    if (window.__manual || raw > 0.5) return;
+    this._ema = (this._ema || 0.016) * 0.94 + raw * 0.06;
+    this._perfT = (this._perfT || 0) + raw;
+    if (this._perfT < 2.5) return;
+    this._perfT = 0;
+    const fps = 1 / this._ema;
+    if (fps < 40 && this.pr > 0.7) { this.pr = Math.max(0.7, this.pr - 0.15); this._resize(); }
+    else if (fps > 57 && this.pr < this.maxPr - 0.01) { this.pr = Math.min(this.maxPr, this.pr + 0.1); this._resize(); }
   }
 
   update(dt) {

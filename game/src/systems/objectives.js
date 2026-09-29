@@ -1,5 +1,5 @@
 // Fil conducteur : chaque étape dit clairement quoi faire ; le monde reste libre.
-import { BISON_MEADOW, DEER_TRAIL_START, CAMP, DEER_ZONES } from '../world/config.js';
+import { BISON_MEADOW, DEER_TRAIL_START, CAMP, IBEX_ZONES } from '../world/config.js';
 
 export class Objectives {
   constructor(ctx) {
@@ -46,6 +46,18 @@ export class Objectives {
         text: () => 'Construire → Décoration → Trophée : Cerf géant',
         detail: 'Place-le sur un mur de ta cabane ou sur un pied dans ta maison.',
         done: () => ctx.camp.counts().trophy > 0, target: () => ({ x: CAMP.x, z: CAMP.z }) },
+      { id: 'ibex', title: 'Monte vers les crêtes',
+        text: () => `Bouquetin abattu ${Math.min(1, ctx.inventory.stats.killed.ibex || 0)}/1`,
+        detail: 'Les bouquetins vivent sur les rochers, au nord. Ils bondissent et fuient vers les hauteurs : approche par le dessous du vent.',
+        done: () => (ctx.inventory.stats.killed.ibex || 0) >= 1, target: () => ({ x: IBEX_ZONES[1].x, z: IBEX_ZONES[1].z }) },
+      { id: 'grow', title: 'Agrandis ton camp',
+        text: () => `Camp niv. ${Math.min(3, ctx.camp.level().level)}/3 — ${ctx.camp.level().name}`,
+        detail: 'Rien n’impose la forme : ' + 'sols, murs et toits à ta guise. Un établi permet de fabriquer de meilleurs sacs et lances.',
+        done: () => ctx.camp.level().level >= 3, target: () => ({ x: CAMP.x, z: CAMP.z }) },
+      { id: 'master', title: 'Deviens maître du camp',
+        text: () => `Camp niv. ${ctx.camp.level().level}/5 — ${ctx.camp.level().name}`,
+        get detail() { return ctx.camp.level().next.hint; },
+        done: () => ctx.camp.level().level >= 5, target: null },
     ];
   }
 

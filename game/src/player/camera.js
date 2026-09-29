@@ -26,10 +26,10 @@ export class CameraRig {
       this.buildDist = clamp(this.buildDist + wheel * 1.3, 4, 24);
     }
     const aiming = player.aiming, observing = player.observing;
-    let wantDist = mode === 'build' ? this.buildDist : aiming ? 3.4 : observing ? 4.4 : 6.2 - (player.crouchAmt || 0) * 0.6;
-    let wantFov = observing ? 30 : aiming ? 46 : mode === 'build' ? 58 : 62 + (player.sprinting ? 5 : 0);
-    let shoulder = mode === 'build' ? 0 : aiming ? 0.75 : observing ? 0.55 : 0.5;
-    let height = mode === 'build' ? 1.0 : player.crouching ? 1.15 : 1.5;
+    let wantDist = mode === 'build' ? this.buildDist : aiming ? 3.4 : observing ? 0.6 : 6.2 - (player.crouchAmt || 0) * 0.6;
+    let wantFov = observing ? 26 : aiming ? 46 : mode === 'build' ? 58 : 62 + (player.sprinting ? 5 : 0);
+    let shoulder = mode === 'build' ? 0 : aiming ? 0.75 : observing ? 0 : 0.5;
+    let height = mode === 'build' ? 1.0 : observing ? (player.crouching ? 1.15 : 1.6) : player.crouching ? 1.15 : 1.5;
     this.fov = damp(this.fov, wantFov, 7, dt);
     this.curDist = damp(this.curDist ?? wantDist, wantDist, 8, dt);
     this.curShoulder = damp(this.curShoulder ?? shoulder, shoulder, 8, dt);
@@ -60,6 +60,7 @@ export class CameraRig {
       this.shake *= Math.exp(-dt * 9);
     }
     this.camera.lookAt(this.target);
+    player.rig.root.visible = this.curDist > 1.8;
     if (Math.abs(this.camera.fov - this.fov) > 0.05) { this.camera.fov = this.fov; this.camera.updateProjectionMatrix(); }
   }
 }

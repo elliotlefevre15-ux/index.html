@@ -1,8 +1,8 @@
 // Végétation, rochers, plantes récoltables : tout en InstancedMesh pour rester fluide.
 import * as THREE from 'three';
 import { part, merge, limb, matVC, matVCFlat } from '../systems/geo.js';
-import { mulberry32, fbm, noise2, smooth, lerp, clamp } from '../systems/noise.js';
-import { WORLD, WATER_Y, CAMP, BISON_MEADOW, ROCK_ZONE, DEER_ZONES, IBEX_ZONES } from './config.js';
+import { mulberry32, fbm, noise2, smooth, clamp } from '../systems/noise.js';
+import { WORLD, CAMP, BISON_MEADOW, ROCK_ZONE } from './config.js';
 import { pathDist } from './terrain.js';
 import { CircleGrid } from './colliders.js';
 
@@ -255,7 +255,7 @@ export class Vegetation {
       const inZone = dr < ROCK_ZONE.r * 1.1;
       const mtn = z < -38;
       const rock = this.terrain.slopeAt(x, z) > 0.75 && this.terrain.heightAt(x, z) < 34;
-      if (!(inZone || (mtn && rnd() < 0.6) || (rock && rnd() < 0.3) || rnd() < 0.02)) continue;
+      if (!(inZone || (mtn && rnd() < 0.3) || (rock && rnd() < 0.3) || rnd() < 0.02)) continue;
       if (!this._ok(x, z, { maxSlope: 2.2, minH: 0.6, maxH: 40, avoidPath: 2, avoidCamp: CAMP.r + 2 })) continue;
       const big = inZone ? R(1.1, 3.2) : R(0.9, 2.6);
       put(x, z, big, false); n++;

@@ -1,8 +1,7 @@
 // Catalogue des pièces de construction (époque : Cro-Magnon). Chaque pièce est un modèle procédural fusionné.
 // Les autres époques (romaine, grecque, militaire) se brancheront en ajoutant un autre catalogue avec la même forme.
 import * as THREE from 'three';
-import { part, merge, limb, matVC, matVCFlat } from '../systems/geo.js';
-import { clamp } from '../systems/noise.js';
+import { part, merge, limb, matVC } from '../systems/geo.js';
 
 export const TILE = 2;
 export const WALL_H = 2.2;

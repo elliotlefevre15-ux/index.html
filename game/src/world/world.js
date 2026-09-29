@@ -3,7 +3,6 @@ import * as THREE from 'three';
 import { Terrain } from './terrain.js';
 import { Vegetation } from './vegetation.js';
 import { createWater } from './water.js';
-import { WATER_Y, WORLD } from './config.js';
 
 export class World {
   constructor(scene) {

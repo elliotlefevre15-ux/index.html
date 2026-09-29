@@ -1,0 +1,6 @@
+{
+  "name": "wildhearth",
+  "private": true,
+  "description": "Vertical slice survie / chasse / construction (Three.js)",
+  "scripts": { "start": "npx --yes serve -l 8000 ." }
+}

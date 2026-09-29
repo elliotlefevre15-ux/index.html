@@ -1,6 +1,6 @@
 // Cycle jour/nuit : ciel (shader), soleil/lune, hémisphère, brouillard.
 import * as THREE from 'three';
-import { clamp, lerp, smooth } from './noise.js';
+import { lerp, smooth } from './noise.js';
 
 const C = (h) => new THREE.Color(h);
 const KEY = {
@@ -29,7 +29,7 @@ export class DayNight {
     scene.add(this.moon, this.moon.target);
     this.hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
     scene.add(this.hemi);
-    scene.fog = new THREE.FogExp2(0xb3cbd6, 0.0085);
+    scene.fog = new THREE.FogExp2(0xb3cbd6, 0.0058);
 
     this.skyUniforms = {
       uTop: { value: new THREE.Color() }, uHor: { value: new THREE.Color() },
@@ -110,7 +110,7 @@ export class DayNight {
     u.uNight.value = this.nightFactor; u.uTwi.value = twi;
     u.uTime.value += dt;
     this.scene.fog.color.copy(fog);
-    this.scene.fog.density = lerp(0.0085, 0.011, this.nightFactor) + twi * 0.001;
+    this.scene.fog.density = lerp(0.0058, 0.0095, this.nightFactor) + twi * 0.0012;
     // lumières
     const sunI = smooth(-0.05, 0.3, sy) * 3.4;
     this.sun.color.copy(KEY.day.sun).lerp(KEY.dusk.sun, twi * 0.9);

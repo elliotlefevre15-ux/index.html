@@ -1,9 +1,8 @@
 // Interface 9:16 : HUD minimaliste, menu de construction, sac, fabrication, carte, coffre. Tout en DOM (prêt pour le tactile).
 import * as THREE from 'three';
 import { icon } from './icons.js';
-import { ITEMS, RES_ORDER, RECIPES, WEAPONS, BAG_CAPS } from '../inventory/items.js';
+import { ITEMS, RES_ORDER, RECIPES } from '../inventory/items.js';
 import { PIECES, CATEGORIES } from '../building/pieces.js';
-import { CAMP_LEVELS } from '../building/camp.js';
 import { DEFS } from '../animals/animal.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -308,6 +307,8 @@ export class UI {
     this.el.camp.innerHTML = `<b>Camp niv. ${lv.level}</b> ${lv.name}`;
     // objectif
     const o = g.objectives.current;
+    if (g.objectives.index !== this._objIdx) { this._objIdx = g.objectives.index; this._objT = 0; }
+    this._objT += dt; this.el.obj.classList.toggle('compact', this._objT > 30);
     if (o) { this.el.objT.textContent = o.title; this.el.objX.textContent = o.text(); this.el.objD.textContent = o.detail; this.el.obj.classList.remove('hidden'); }
     else { this.el.objT.textContent = 'Maître du camp'; this.el.objX.textContent = `Camp : ${lv.name}`; this.el.objD.textContent = lv.level < 5 ? lv.hint : 'Continue de construire et de chasser librement.'; }
     // mode

@@ -15,14 +15,14 @@ function rawHeight(x, z) {
   // montagne au nord
   const m = smooth(-28, -88, z);
   const rg = ridged(x * 0.024 + 50, z * 0.024 + 20, 4, 11);
-  h += m * (12 + rg * 34) + smooth(-50, -80, z) * fbm(x * 0.06, z * 0.06, 3, 5) * 8;
+  h += m * (9 + rg * 27) + smooth(-50, -80, z) * fbm(x * 0.06, z * 0.06, 3, 5) * 6;
   // zone rocheuse
   const dr = Math.hypot(x - ROCK_ZONE.x, z - ROCK_ZONE.z);
   const rz = 1 - smooth(ROCK_ZONE.r * 0.35, ROCK_ZONE.r * 1.3, dr);
   h += rz * (2 + ridged(x * 0.07, z * 0.07, 3, 21) * 9);
   // cuvette : les bords remontent
   const e = smooth(70, 100, Math.max(Math.abs(x), Math.abs(z)));
-  h += e * e * 34;
+  h += e * e * 22;
   // pas de cuvettes hors rivière
   if (h < 0.7) h = 0.7 + (h - 0.7) * 0.15;
   // clairière du camp, aplatie
@@ -108,9 +108,9 @@ export class Terrain {
       c.lerp(dry, smooth(0.6, 0.85, fbm(x * 0.03 + 90, z * 0.03, 3, 44)) * 0.5);
       c.multiplyScalar(0.92 + n2 * 0.16);
       // rocheux (pente + altitude)
-      const rk = smooth(0.55, 1.1, sl + (n1 - 0.5) * 0.3) + smooth(16, 26, h + n1 * 4) * 0.7;
+      const rk = smooth(0.55, 1.1, sl + (n1 - 0.5) * 0.3) + smooth(15, 26, h + n1 * 4) * 0.8;
       c.lerp(rock.clone().lerp(rock2, n2), clamp(rk, 0, 1));
-      c.lerp(snow, smooth(30, 38, h + (n1 - 0.5) * 6) * (1 - smooth(1.0, 1.5, sl) * 0.4));
+      c.lerp(snow, smooth(34, 44, h + (n1 - 0.5) * 6) * (1 - smooth(1.0, 1.5, sl) * 0.4));
       // berges
       c.lerp(sand, (1 - smooth(-0.1, 0.45, h)) * 0.9);
       c.lerp(mud, (1 - smooth(WATER_Y - 0.3, WATER_Y + 0.05, h)) * 0.8);

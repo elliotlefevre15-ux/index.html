@@ -1,7 +1,7 @@
 // Le joueur : déplacement, saut, discrétion, survie (faim/soif/santé), lance (mêlée + lancer).
 import * as THREE from 'three';
 import { createCroMagnon, animateCro, playAction } from './model.js';
-import { clamp, damp, dampAngle, lerp } from '../systems/noise.js';
+import { clamp, damp, dampAngle } from '../systems/noise.js';
 import { CAMP, WATER_Y, WORLD } from '../world/config.js';
 import { part, merge, limb, matVC } from '../systems/geo.js';
 

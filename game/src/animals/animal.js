@@ -1,13 +1,12 @@
 // IA d'un animal : broute, repère (conscience croissante), s'alerte, fuit, charge (bison), saigne, meurt.
-import * as THREE from 'three';
 import { createAnimalModel, animateAnimal, poseDead } from './models.js';
-import { dampAngle, angDiff, clamp, lerp, smooth } from '../systems/noise.js';
+import { dampAngle, angDiff, lerp } from '../systems/noise.js';
 import { WATER_Y, WORLD, DEER_ZONES, IBEX_ZONES } from '../world/config.js';
 
 export const DEFS = {
-  bison: { name: 'Bison', hp: 130, walk: 1.3, run: 7.6, radius: 1.0, hitR: 1.4, sight: 27, hearMul: 0.85, slope: 0.62, panic: 7, bleed: 0.5 },
-  deer:  { name: 'Cerf géant', hp: 85, walk: 2.1, run: 11.5, radius: 0.75, hitR: 1.15, sight: 38, hearMul: 1.15, slope: 0.85, panic: 15, bleed: 1.1 },
-  ibex:  { name: 'Bouquetin', hp: 45, walk: 1.9, run: 9.8, radius: 0.5, hitR: 0.8, sight: 33, hearMul: 1.0, slope: 3.5, panic: 9, bleed: 0.9 },
+  bison: { name: 'Bison', hp: 120, walk: 1.3, run: 7.6, radius: 1.0, hitR: 1.4, sight: 27, hearMul: 0.85, slope: 0.62, panic: 5, bleed: 0.5 },
+  deer:  { name: 'Cerf géant', hp: 85, walk: 2.1, run: 11.5, radius: 0.75, hitR: 1.15, sight: 38, hearMul: 1.15, slope: 0.85, panic: 6, bleed: 1.1 },
+  ibex:  { name: 'Bouquetin', hp: 45, walk: 1.9, run: 9.8, radius: 0.5, hitR: 0.8, sight: 33, hearMul: 1.0, slope: 3.5, panic: 5, bleed: 0.9 },
 };
 const rnd = (a, b) => a + Math.random() * (b - a);
 
@@ -48,7 +47,7 @@ export class Animal {
     if (heard || seen) {
       const range = Math.max(heard ? hearR : 0, seen ? sightR : 0);
       const close = 1 - d / Math.max(range, 1);
-      this.awareness = Math.min(1.4, this.awareness + dt * (0.22 + close * 1.9));
+      this.awareness = Math.min(1.4, this.awareness + dt * (0.12 + close * close * 2.6));
       this.calmT = 0;
     } else {
       this.calmT += dt;
@@ -226,9 +225,6 @@ export class Animal {
 
   // ---------- cerf ----------
   _deerCalm(dt) {
-    const { daynight, tracks } = this.ctx;
-    const h = daynight.hours;
-    const activeTime = (h > 4.5 && h < 9.5) || (h > 16.5 && h < 21.5);
     if (this.state === 'graze') {
       if (this.stateT > this._grazeFor()) {
         if (this.route) { this.state = 'walk'; this.stateT = 0; }
@@ -273,6 +269,8 @@ export class Animal {
   // ---------- dégâts ----------
   damage(n, fromX, fromZ) {
     if (this.dead) return;
+    // coup précis sur une proie qui ne se doutait de rien
+    if (this.awareness < 0.35 && ['graze', 'walk', 'rest'].includes(this.state)) { n *= 1.6; this.ctx.ui.toast('Coup précis !', 'good'); }
     this.hp -= n;
     this.wounded = true;
     this.ctx.fx.burst(this.x, this.y + this.rig.hitY, this.z, 14, { color: 0x8a1410, size: 0.16, life: 0.7, gravity: 6, alpha: 0.9 }, 2.4, 2.2);

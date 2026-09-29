@@ -6,9 +6,9 @@ const SIZES = { deer: 1.0, bison: 1.5, ibex: 0.65 };
 
 function printGeo() {
   const mk = (x) => {
-    const g = new THREE.CircleGeometry(0.05, 7);
+    const g = new THREE.CircleGeometry(0.068, 7);
     g.rotateX(-Math.PI / 2);
-    g.scale(0.62, 1, 1.5);
+    g.scale(0.7, 1, 1.5);
     g.translate(x, 0, 0);
     return part(g, { color: 0xffffff });
   };
@@ -72,7 +72,8 @@ export class Tracks {
   update(dt, playerPos, observing, t) {
     // pulsation d'émission en mode observation
     for (const K of Object.values(this.kinds)) {
-      K.mesh.material.emissiveIntensity = observing ? 0.8 + 0.5 * Math.sin(t * 5) : 0;
+      K.mesh.material.emissiveIntensity = observing ? 1.1 + 0.6 * Math.sin(t * 5) : 0;
+      K.mesh.material.depthTest = !observing; K.mesh.renderOrder = observing ? 30 : 0;
     }
     this._t -= dt;
     if (this._t > 0) return;
